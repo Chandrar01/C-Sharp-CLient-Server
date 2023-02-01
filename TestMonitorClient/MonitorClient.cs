@@ -1,101 +1,112 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace TestMonitorClient
 {
-    class MonitorClient
+    public class MonitorClient
     {
         /// <summary>
-        /// message to send
+        /// Private instance of the same class
         /// </summary>
-        private static string message;
+        private static MonitorClient Instance;
 
         /// <summary>
         ///  Stream Object to handle Stream
         /// </summary>
-        private static Stream Mstream;
+        private static Stream Stream;
 
         /// <summary>
         ///  Stream reader
         /// </summary>
-        private static StreamReader Mreader;
+        private static StreamReader Sreader;
 
         /// <summary>
         /// Stream writer
         /// </summary>
-        private static StreamWriter Mwriter;
+        private static StreamWriter Swriter;
 
         /// <summary>
         /// TCP Client Object
         /// </summary>
-        private static TcpClient Mclient;
+        private static TcpClient TcpClient;
 
-        private static bool ConsoleCancel = false;
+        /// <summary>
+        /// Synchronizing object used for lock
+        /// and make the client thread safe
+        /// </summary>
+        private static readonly object _lock = new object();
 
-        static void Main(string[] args)
+        /// <summary>
+        /// constructor for MonitorClient class
+        /// constructor is private and gets single instance of the class logger
+        /// </summary>
+        private MonitorClient()
         {
-            
-            try
+            TcpClient = new TcpClient(IPAddress.Loopback.ToString(), 56000);
+
+            Stream = TcpClient.GetStream();
+            Sreader = new StreamReader(Stream);
+            Swriter = new StreamWriter(Stream);
+        }
+
+        public static MonitorClient GetInstance()
+        {
+            lock (_lock)
             {
-                Mclient = new TcpClient(IPAddress.Loopback.ToString(), 56000);
-
-                Mstream = Mclient.GetStream();
-                Mreader = new StreamReader(Mstream);
-                Mwriter = new StreamWriter(Mstream);
-
-                Console.CancelKeyPress += Console_CancelKeyPress;
-
-                while (!ConsoleCancel)
+                if (Instance == null)
                 {
-                    message = Console.ReadLine();
-
-                    WriteLine(message);
-                }
-              
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Client Error : " + ex.Message + " " + ex.StackTrace);
-                Console.WriteLine("Press Enter to Continue");
-                Console.ReadLine();
-                Console.WriteLine();
-
-            }
-            finally
-            {
-                if (Mclient != null)
-                {
-                    Mclient.Close();
+                    Instance = new MonitorClient();
                 }
             }
-          
+
+            return Instance;
         }
 
         /// <summary>
-        /// This function writes a message line to the stream 
+        /// This function writes a message line to the stream
         /// which sends that message to MServer to display
         /// </summary>
         /// <param name="message"></param>
-        public static void WriteLine(string message)
+        public void WriteLine(string message)
         {
-            Mwriter.WriteLine(message);
+            lock (_lock)
+            {
+                Swriter.WriteLine(DateTime.Now + " : " + message);
+                Swriter.Flush();
+            }
         }
 
         /// <summary>
-        /// Capture the ^C or Break key event handler
+        /// This function Sleeps and conveys progress of sleep
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        /// <param name="Seconds"></param>
+        public void Sleep(uint Seconds, uint interval)
         {
-            ConsoleCancel = true;
-            e.Cancel = true;
+            int lapsedSeconds = 0;
+
+            while (lapsedSeconds != Seconds)
+            {
+                Thread.Sleep(1000);
+                lapsedSeconds++;
+
+                if ((lapsedSeconds % interval) == 0)
+                {
+                    WriteLine("Remaining time = " + (Seconds - lapsedSeconds) / 60 + " minutes "
+                              + (Seconds - lapsedSeconds) % 60 + "seconds");
+                }
+            }
         }
+
+        /// <summary>
+        /// Close TCP Connection
+        /// </summary>
+        public void Close()
+        {
+            TcpClient.Close();
+        }
+
     }
 }
