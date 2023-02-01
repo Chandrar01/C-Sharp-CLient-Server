@@ -1,0 +1,7 @@
+C:\Developement_Bench_G7_FRA\G7FalconReceiverTests\FalconApplication\TestMonitorServer\bin\Debug\TestMonitorServer.exe.config
+C:\Developement_Bench_G7_FRA\G7FalconReceiverTests\FalconApplication\TestMonitorServer\bin\Debug\TestMonitorServer.exe
+C:\Developement_Bench_G7_FRA\G7FalconReceiverTests\FalconApplication\TestMonitorServer\bin\Debug\TestMonitorServer.pdb
+C:\Developement_Bench_G7_FRA\G7FalconReceiverTests\FalconApplication\TestMonitorServer\obj\Debug\TestMonitorServer.csproj.AssemblyReference.cache
+C:\Developement_Bench_G7_FRA\G7FalconReceiverTests\FalconApplication\TestMonitorServer\obj\Debug\TestMonitorServer.csproj.CoreCompileInputs.cache
+C:\Developement_Bench_G7_FRA\G7FalconReceiverTests\FalconApplication\TestMonitorServer\obj\Debug\TestMonitorServer.exe
+C:\Developement_Bench_G7_FRA\G7FalconReceiverTests\FalconApplication\TestMonitorServer\obj\Debug\TestMonitorServer.pdb
